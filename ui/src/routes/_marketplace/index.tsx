@@ -31,10 +31,18 @@ import accessoriesImage from "@/assets/images/pngs/accessories.avif";
 export const Route = createFileRoute("/_marketplace/")({
   pendingComponent: LoadingSpinner,
   loader: async () => {
-    await Promise.all([
-      queryClient.ensureQueryData(productLoaders.featured(8)),
-      queryClient.ensureQueryData(collectionLoaders.list()),
-    ]);
+    await queryClient.ensureQueryData(productLoaders.featured(8));
+
+    const listData = await queryClient.ensureQueryData(
+      collectionLoaders.list()
+    );
+
+    // Prefetch collection details so product counts can be derived from query cache.
+    await Promise.all(
+      listData.collections.map((c) =>
+        queryClient.ensureQueryData(collectionLoaders.detail(c.slug))
+      )
+    );
   },
   errorComponent: ({ error }) => {
     const router = useRouter();
@@ -338,17 +346,14 @@ function MarketplaceHome() {
                 accessories: accessoriesImage,
               };
 
-              // Map collection slugs to product counts (placeholder - you may want to fetch this dynamically)
-              const collectionCounts: Record<string, number> = {
-                men: 4,
-                women: 4,
-                exclusives: 4,
-                accessories: 7,
-              };
-
               const imageSrc =
                 collectionImages[collection.slug] || menCollectionsImage;
-              const productCount = collectionCounts[collection.slug] || 0;
+
+              // Product count is derived from the prefetched detail query.
+              const detailData = queryClient.getQueryData(
+                collectionLoaders.detail(collection.slug).queryKey
+              ) as { products?: unknown[] } | undefined;
+              const productCount = detailData?.products?.length ?? 0;
 
               return (
                 <Link

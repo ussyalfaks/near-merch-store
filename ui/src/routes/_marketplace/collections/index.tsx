@@ -15,7 +15,13 @@ import accessoriesImage from "@/assets/images/pngs/accessories.avif";
 export const Route = createFileRoute('/_marketplace/collections/')({
   pendingComponent: LoadingSpinner,
   loader: async () => {
-    await queryClient.ensureQueryData(collectionLoaders.list());
+    // Prefetch collection list + details so UI can show accurate counts without hardcoding.
+    const listData = await queryClient.ensureQueryData(collectionLoaders.list());
+    await Promise.all(
+      listData.collections.map((c) =>
+        queryClient.ensureQueryData(collectionLoaders.detail(c.slug))
+      )
+    );
   },
   errorComponent: ({ error }) => {
     const router = useRouter();
@@ -56,27 +62,6 @@ const collectionImages: Record<string, string> = {
   accessories: accessoriesImage,
 };
 
-// Map collection slugs to descriptions, badges, and product counts
-const collectionMeta: Record<string, { description: string; badge?: string; productCount: number }> = {
-  men: {
-    description: 'Premium fits designed specifically for men. Classic essentials to modern oversized styles.',
-    productCount: 4,
-  },
-  women: {
-    description: 'Tailored fits designed for women. Comfortable, stylish, and sustainably made.',
-    productCount: 4,
-  },
-  exclusives: {
-    description: "Limited edition designs created in collaboration with artists. Once they're gone, they're gone.",
-    productCount: 7,
-  },
-  accessories: {
-    description: 'Complete your look with our curated selection. From everyday essentials to statement pieces.',
-    badge: 'Limited',
-    productCount: 3,
-  },
-};
-
 function CollectionsPage() {
   const { data: collectionsData } = useSuspenseCollections();
   const collections = collectionsData.collections;
@@ -98,7 +83,12 @@ function CollectionsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {collections.map((collection) => {
             const imageSrc = collectionImages[collection.slug] || menCollectionsImage;
-            const meta = collectionMeta[collection.slug];
+
+            // Product count comes from the prefetched detail query.
+            const detailData = queryClient.getQueryData(
+              collectionLoaders.detail(collection.slug).queryKey
+            ) as { products?: unknown[] } | undefined;
+            const productCount = detailData?.products?.length ?? 0;
             
             return (
               <Link
@@ -117,17 +107,19 @@ function CollectionsPage() {
                 <div className="border-t border-[rgba(0,0,0,0.1)] p-6 space-y-3">
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-medium tracking-[-0.48px]">{collection.name}</h3>
-                    {meta?.badge && (
+                    {collection.badge && (
                       <span className="border border-neutral-950 px-2 py-0.5 text-xs tracking-[-0.48px]">
-                        {meta.badge}
+                        {collection.badge}
                       </span>
                     )}
                   </div>
                   <p className="text-[#717182] tracking-[-0.48px] leading-6">
-                    {meta?.description || collection.description || ''}
+                    {collection.description || ''}
                   </p>
                   <div className="flex items-center justify-between">
-                    <p className="text-[#717182] text-sm tracking-[-0.48px]">{meta?.productCount || 0} Products</p>
+                    <p className="text-[#717182] text-sm tracking-[-0.48px]">
+                      {productCount} Products
+                    </p>
                     <span className="px-3 py-2 group-hover:bg-gray-100 transition-colors tracking-[-0.48px] text-sm">
                       Explore
                     </span>

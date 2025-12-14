@@ -55,49 +55,6 @@ export const Route = createFileRoute('/_marketplace/collections/$collection')({
   component: CollectionDetailPage,
 });
 
-// Extended metadata for collections (features and descriptions not in API)
-const collectionMetadata: Record<string, {
-  description: string;
-  features: string[];
-}> = {
-  men: {
-    description: 'Premium fits designed specifically for men. From classic essentials to modern oversized styles, each piece is crafted with attention to detail and comfort.',
-    features: [
-      'Regular & Oversized Fits',
-      'Premium 100% Cotton',
-      'Modern Minimalist Designs',
-      'Durable Construction',
-    ],
-  },
-  women: {
-    description: 'Tailored fits designed for women. Comfortable, stylish, and sustainably made pieces that blend fashion with function.',
-    features: [
-      'Fitted & Crop Styles',
-      'Premium Soft Fabrics',
-      'Versatile Designs',
-      'Sustainable Materials',
-    ],
-  },
-  exclusives: {
-    description: "Limited edition designs created in collaboration with artists. Once they're gone, they're gone forever.",
-    features: [
-      'Limited Edition Items',
-      'Artist Collaborations',
-      'Unique Designs',
-      'Collectible Pieces',
-    ],
-  },
-  accessories: {
-    description: 'Complete your look with our curated selection. From everyday essentials to statement pieces.',
-    features: [
-      'Functional & Stylish',
-      'Premium Materials',
-      'Versatile Designs',
-      'Perfect for Gifting',
-    ],
-  },
-};
-
 const collectionImages: Record<string, string> = {
   men: menCollectionsImage,
   women: womenCollectionsImage,
@@ -114,7 +71,8 @@ function CollectionDetailPage() {
 
   const { data } = useSuspenseCollection(collectionSlug);
   const { collection, products } = data;
-  const metadata = collectionMetadata[collectionSlug];
+  // Render collection features from API (no hardcoded UI metadata).
+  const features = collection?.features ?? [];
 
   const handleAddToCart = (product: Product) => {
     setSizeModalProduct(product);
@@ -126,7 +84,7 @@ function CollectionDetailPage() {
     setIsCartSidebarOpen(true);
   };
 
-  if (!collection || !metadata) {
+  if (!collection) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -168,12 +126,12 @@ function CollectionDetailPage() {
               <h1 className="text-2xl font-medium tracking-[-0.48px]">{collection.name}</h1>
               
               <p className="text-[#717182] text-lg leading-7 tracking-[-0.48px]">
-                {metadata?.description || collection.description || ''}
+                {collection.description || ''}
               </p>
 
-              {metadata?.features && (
+              {features.length > 0 && (
                 <div className="space-y-3">
-                  {metadata.features.map((feature, index) => (
+                  {features.map((feature, index) => (
                     <div key={index} className="flex items-center gap-3">
                       <div className="w-1.5 h-1.5 bg-neutral-950 rounded-full" />
                       <p className="tracking-[-0.48px]">{feature}</p>
@@ -292,7 +250,10 @@ function CollectionProductCard({
             aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           >
             <Heart
-              className={cn('size-4', isFavorite ? 'fill-black stroke-black' : 'stroke-black')}
+              className={cn(
+                'size-4',
+                isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-black'
+              )}
             />
           </button>
 
