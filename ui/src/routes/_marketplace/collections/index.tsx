@@ -7,10 +7,6 @@ import {
   collectionLoaders,
 } from '@/integrations/marketplace-api';
 import { queryClient } from '@/utils/orpc';
-import menCollectionsImage from "@/assets/images/pngs/men_collections.avif";
-import womenCollectionsImage from "@/assets/images/pngs/women_collections.avif";
-import nearLegionImage from "@/assets/images/pngs/near_legion.avif";
-import accessoriesImage from "@/assets/images/pngs/accessories.avif";
 
 export const Route = createFileRoute('/_marketplace/collections/')({
   pendingComponent: LoadingSpinner,
@@ -54,14 +50,6 @@ export const Route = createFileRoute('/_marketplace/collections/')({
   component: CollectionsPage,
 });
 
-// Map collection slugs to images (static assets)
-const collectionImages: Record<string, string> = {
-  men: menCollectionsImage,
-  women: womenCollectionsImage,
-  exclusives: nearLegionImage,
-  accessories: accessoriesImage,
-};
-
 function CollectionsPage() {
   const { data: collectionsData } = useSuspenseCollections();
   const collections = collectionsData.collections;
@@ -82,7 +70,7 @@ function CollectionsPage() {
       <div className="max-w-[1408px] mx-auto px-4 md:px-8 lg:px-16 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {collections.map((collection) => {
-            const imageSrc = collectionImages[collection.slug] || menCollectionsImage;
+            const imageSrc = collection.image || '/ui/src/assets/images/pngs/man_on_near.png';
 
             // Product count comes from the prefetched detail query.
             const detailData = queryClient.getQueryData(

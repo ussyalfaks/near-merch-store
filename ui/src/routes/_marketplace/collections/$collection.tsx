@@ -14,10 +14,6 @@ import {
   type Product,
 } from '@/integrations/marketplace-api';
 import { queryClient } from '@/utils/orpc';
-import menCollectionsImage from "@/assets/images/pngs/men_collections.avif";
-import womenCollectionsImage from "@/assets/images/pngs/women_collections.avif";
-import nearLegionImage from "@/assets/images/pngs/accessories.avif";
-import accessoriesImage from "@/assets/images/pngs/accessories.avif";
 
 export const Route = createFileRoute('/_marketplace/collections/$collection')({
   pendingComponent: LoadingSpinner,
@@ -54,13 +50,6 @@ export const Route = createFileRoute('/_marketplace/collections/$collection')({
   },
   component: CollectionDetailPage,
 });
-
-const collectionImages: Record<string, string> = {
-  men: menCollectionsImage,
-  women: womenCollectionsImage,
-  exclusives: nearLegionImage,
-  accessories: accessoriesImage,
-};
 
 function CollectionDetailPage() {
   const { collection: collectionSlug } = Route.useParams();
@@ -115,7 +104,7 @@ function CollectionDetailPage() {
         <div className="grid m-6 md:p-12 md:grid-cols-2">
           <div className="bg-[#ececf0] h-[400px]  md:h-[529px] overflow-hidden">
             <img
-              src={collectionImages[collectionSlug] || menCollectionsImage}
+              src={collection.image}
               alt={collection.name}
               className="w-full h-full object-cover"
             />

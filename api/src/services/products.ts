@@ -9,6 +9,7 @@ export const COLLECTIONS: Collection[] = [
     slug: 'men',
     name: 'Men',
     description: 'Premium fits designed specifically for men. Classic essentials to modern oversized styles.',
+    image: '/ui/src/assets/images/pngs/men_collections.avif',
     features: [
       'Regular & Oversized Fits',
       'Premium 100% Cotton',
@@ -20,6 +21,7 @@ export const COLLECTIONS: Collection[] = [
     slug: 'women',
     name: 'Women',
     description: 'Tailored fits designed for women. Comfortable, stylish, and sustainably made.',
+    image: '/ui/src/assets/images/pngs/women_collections.avif',
     features: [
       'Fitted & Crop Styles',
       'Premium Soft Fabrics',
@@ -31,6 +33,7 @@ export const COLLECTIONS: Collection[] = [
     slug: 'accessories',
     name: 'Accessories',
     description: 'Complete your look with our curated selection. From everyday essentials to statement pieces.',
+    image: '/ui/src/assets/images/pngs/accessories.avif',
     badge: 'Limited',
     features: [
       'Functional & Stylish',
@@ -43,6 +46,7 @@ export const COLLECTIONS: Collection[] = [
     slug: 'exclusives',
     name: 'Exclusives',
     description: "Limited edition designs created in collaboration with artists. Once they're gone, they're gone.",
+    image: '/ui/src/assets/images/pngs/near_legion.avif',
     features: [
       'Limited Edition Items',
       'Artist Collaborations',
